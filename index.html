@@ -4,13 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>仿本站官网首页</title>
+    <title>halo,欢迎你的到来</title>
     <style>
         /* 全局样式 */
-        body {
-            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        html, body {
+            overflow-x: hidden; /* 防止水平滚动 */
+            width: 100%;
+            max-width: 100%;
             margin: 0;
             padding: 0;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             color: #333;
             line-height: 1.6;
         }
@@ -38,6 +41,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px 20px;
+            box-sizing: border-box;
         }
 
         .logo {
@@ -69,7 +73,7 @@
         nav ul li a {
             text-decoration: none;
             color: #fff;
-            font-weight: bold; /* 加粗文字 */
+            font-weight: bold;
             transition: color 0.3s ease;
             position: relative;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -106,8 +110,8 @@
             top: 100%;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(255, 255, 255, 0.5); /* 半透明背景 */
-            backdrop-filter: blur(10px); /* 毛玻璃效果 */
+            background-color: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             border-radius: 10px;
             padding: 20px;
@@ -156,7 +160,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             border-radius: 4px;
             padding: 10px;
-            z-index: 1;
+            z-index: 1000;
             text-align: center;
             width: auto;
             white-space: nowrap;
@@ -200,23 +204,23 @@
             nav ul {
                 display: none;
                 flex-direction: column;
-                position: absolute;
+                position: fixed;
                 top: 70px;
                 left: 0;
                 right: 0;
                 background-color: rgba(255, 255, 255, 0.9);
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 backdrop-filter: blur(10px);
                 padding: 10px 0;
                 max-height: 0;
                 overflow: hidden;
                 transition: max-height 0.5s ease, opacity 0.5s ease;
                 opacity: 0;
+                z-index: 999;
             }
 
             nav ul.show {
                 display: flex;
-                max-height: 500px; /* 根据实际内容调整 */
+                max-height: 500px;
                 opacity: 1;
             }
 
@@ -228,16 +232,50 @@
 
             nav ul li a {
                 color: #333;
-                font-weight: bold; /* 手机端菜单文字加粗 */
+                font-weight: bold;
             }
 
             .menu-toggle {
                 display: flex;
             }
 
-            /* 调整二维码位置 */
-            .qr-code {
-                left: 60%;
+            .language-dropdown {
+                position: static;
+                transform: none;
+                background-color: transparent;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .language-dropdown a {
+                padding: 10px 0;
+                color: #333;
+            }
+
+            .language-dropdown a:hover {
+                color: #006eff;
+            }
+
+            .language-item {
+                position: relative;
+            }
+
+            .language-dropdown {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(10px);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                border-radius: 4px;
+                padding: 10px;
+                z-index: 1000;
+            }
+
+            .language-item:hover .language-dropdown {
+                display: block;
             }
         }
 
@@ -385,8 +423,8 @@
             bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
-            width: 105px!important;
-            height: 105px!important;
+            width: 105px !important;
+            height: 105px !important;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
@@ -447,7 +485,7 @@
                             <p>7v7.top</p>
                         </div>
                     </li>
-                    <li>
+                    <li class="language-item">
                         <a href="#" data-lang-key="language-switch">切换语言</a>
                         <div class="language-dropdown">
                             <a href="#" data-lang="zh-CN" data-lang-key="chinese">简体</a>
