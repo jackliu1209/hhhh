@@ -153,6 +153,12 @@
             height: auto;
             object-fit: contain;
             border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .about-modal img:hover {
+            transform: scale(1.02);
         }
 
         /* 电脑端样式调整，让图片缩小一半 */
@@ -437,6 +443,73 @@
             transition: opacity 0.3s ease;
             z-index: 1001;
         }
+
+        /* 复制成功提示样式 - 烟花效果 */
+        .copy-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            background-size: 400% 400%;
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            z-index: 1002;
+            animation: gradientBG 3s ease infinite, fadeOut 1s ease 2s forwards;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+            transition: all 0.3s ease;
+        }
+
+        .copy-notification.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+
+        /* 烟花粒子效果 */
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fireworkAnimation 1s ease-out forwards;
+        }
+
+        @keyframes fireworkAnimation {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty));
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -471,7 +544,7 @@
     <div id="about-modal" class="about-modal">
         <div class="about-modal-content">
             <span class="about-modal-close" id="close-about-modal">&times;</span>
-            <img src="we.png" alt="关于我们的图片">
+            <img src="we.png" alt="关于我们的图片" id="about-image">
         </div>
     </div>
     <!-- halo-区域 -->
@@ -543,6 +616,8 @@
     </footer>
     <!-- 语言切换提示 -->
     <div class="language-switch-toast" id="language-switch-toast"></div>
+    <!-- 复制成功提示 -->
+    <div class="copy-notification" id="copy-notification">复制成功咯!</div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const slides = document.querySelectorAll('.slide');
@@ -555,6 +630,8 @@
             const openAboutModal = document.getElementById('open-about-modal');
             const closeAboutModal = document.getElementById('close-about-modal');
             const aboutModal = document.getElementById('about-modal');
+            const aboutImage = document.getElementById('about-image');
+            const copyNotification = document.getElementById('copy-notification');
             let currentSlide = 0;
 
             const languages = {
@@ -717,8 +794,72 @@
                     aboutModal.style.display = 'none';
                 }
             });
+
+            // 点击we.png图片复制文本并显示烟花效果
+            aboutImage.addEventListener('click', function() {
+                // 复制文本到剪贴板
+                const textToCopy = 'yaliuz';
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    // 显示复制成功提示
+                    showCopyNotification();
+                    
+                    // 创建烟花效果
+                    createFireworks();
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                    // 即使复制失败也显示效果
+                    showCopyNotification();
+                    createFireworks();
+                });
+            });
+
+            function showCopyNotification() {
+                copyNotification.classList.add('show');
+                setTimeout(() => {
+                    copyNotification.classList.remove('show');
+                }, 3000);
+            }
+
+            function createFireworks() {
+                const colors = ['#ff0000', '#ff7300', '#fffb00', '#48ff00', '#00ffd5', '#002bff', '#7a00ff', '#ff00c8'];
+                
+                // 创建50个烟花粒子
+                for (let i = 0; i < 50; i++) {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    
+                    // 随机颜色
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    firework.style.backgroundColor = color;
+                    
+                    // 随机位置
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 50 + Math.random() * 100;
+                    const tx = Math.cos(angle) * distance;
+                    const ty = Math.sin(angle) * distance;
+                    
+                    firework.style.setProperty('--tx', tx + 'px');
+                    firework.style.setProperty('--ty', ty + 'px');
+                    
+                    // 随机大小
+                    const size = 3 + Math.random() * 5;
+                    firework.style.width = size + 'px';
+                    firework.style.height = size + 'px';
+                    
+                    // 随机延迟
+                    firework.style.animationDelay = Math.random() * 0.5 + 's';
+                    
+                    // 添加到body
+                    document.body.appendChild(firework);
+                    
+                    // 动画结束后移除
+                    setTimeout(() => {
+                        firework.remove();
+                    }, 1000);
+                }
+            }
         });
     </script>
 </body>
 
-</html>    
+</html>
