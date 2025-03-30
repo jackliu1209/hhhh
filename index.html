@@ -3,13 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>halo,欢迎你的到来</title>
     <style>
         /* 全局样式 */
         html,
         body {
             overflow-x: hidden;
+            /* 防止水平滚动 */
             width: 100%;
             max-width: 100%;
             margin: 0;
@@ -17,133 +18,6 @@
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             color: #333;
             line-height: 1.6;
-            touch-action: pan-y;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        /* 加载进度条容器 */
-        .progress-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: transparent;
-        }
-
-        /* 两侧进度条 */
-        .progress-left,
-        .progress-right {
-            position: absolute;
-            height: 100%;
-            width: 50%;
-            background: linear-gradient(90deg,
-                    #ff3366,
-                    #ff6666,
-                    #ff9966,
-                    #ffcc66);
-            transition: width 0.3s ease;
-        }
-
-        .progress-left {
-            left: 0;
-            transform-origin: right center;
-            animation: leftProgress 2s ease-in-out forwards;
-        }
-
-        .progress-right {
-            right: 0;
-            transform-origin: left center;
-            animation: rightProgress 2s ease-in-out forwards;
-        }
-
-        @keyframes leftProgress {
-            0% {
-                width: 50%;
-            }
-
-            100% {
-                width: 0%;
-            }
-        }
-
-        @keyframes rightProgress {
-            0% {
-                width: 50%;
-            }
-
-            100% {
-                width: 0%;
-            }
-        }
-
-        /* 小气泡效果 */
-        .bubble-loader {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle at 70% 30%, #87CEEB, #00BFFF);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
-            opacity: 0;
-            animation: bubbleBeat 1s ease-out 2s forwards;
-        }
-
-        @keyframes bubbleBeat {
-            0% {
-                transform: scale(0);
-                opacity: 0;
-            }
-
-            50% {
-                transform: scale(1.2);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
-        }
-
-        /* 关于我们模态框样式 */
-        .about-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 101;
-            justify-content: center;
-            align-items: center;
-            touch-action: none;
-        }
-
-        .about-modal img {
-            display: block;
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            border-radius: 8px;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-        }
-
-        /* 防止双击缩放 */
-        * {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
         }
 
         /* 头部样式 */
@@ -224,6 +98,62 @@
 
         nav ul li a:hover::after {
             width: 100%;
+        }
+
+        /* 关于我们悬浮卡片 */
+        .about-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 101;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .about-modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            background: linear-gradient(45deg, #00f, #0f0, #f00, #00f);
+            background-size: 400% 400%;
+            border-radius: 10px;
+            padding: 3px;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .about-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            z-index: 102;
+        }
+
+        .about-modal img {
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            cursor: pointer;
         }
 
         /* 电脑端样式调整，让图片缩小一半 */
@@ -393,7 +323,6 @@
             100% {
                 opacity: 0;
             }
-
             50% {
                 opacity: 1;
             }
@@ -542,7 +471,6 @@
                 transform: translateY(0) scale(1);
                 opacity: 1;
             }
-
             100% {
                 transform: translateY(-100px) scale(0.5);
                 opacity: 0;
@@ -567,26 +495,49 @@
             background-clip: text;
             color: transparent;
         }
+
+        /* 页面加载进度条样式 */
+        #progress-bar-left,
+        #progress-bar-right {
+            position: fixed;
+            top: 0;
+            height: 5px;
+            background: linear-gradient(to right, #FF69B4, #FF1493);
+            z-index: 1000;
+        }
+
+        #progress-bar-left {
+            left: 0;
+            width: 50%;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+
+        #progress-bar-right {
+            right: 0;
+            width: 50%;
+            transform-origin: right;
+            transform: scaleX(0);
+        }
+
+        #progress-heart {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            color: #FF1493;
+            font-size: 30px;
+            opacity: 0;
+            z-index: 1000;
+        }
     </style>
 </head>
 
 <body>
-    <!-- 加载进度条 -->
-    <div class="progress-container" id="progress-container">
-        <div class="progress-left"></div>
-        <div class="progress-right"></div>
-        <div class="bubble-loader"></div>
-    </div>
-
-    <!-- 关于我们模态框 -->
-    <div id="about-modal" class="about-modal">
-        <div class="about-modal-content">
-            <span class="about-modal-close" id="close-about-modal">&times;</span>
-            <img src="we.png" alt="关于我们的图片" id="about-image">
-            <div class="image-copy-toast" id="image-copy-toast">已经帮您复制成功！</div>
-        </div>
-    </div>
-
+    <!-- 页面加载进度条 -->
+    <div id="progress-bar-left"></div>
+    <div id="progress-bar-right"></div>
+    <div id="progress-heart">❤</div>
     <!-- 头部 -->
     <header>
         <div class="header-container">
@@ -613,10 +564,16 @@
             </nav>
         </div>
     </header>
-
+    <!-- 关于我们模态框 -->
+    <div id="about-modal" class="about-modal">
+        <div class="about-modal-content">
+            <span class="about-modal-close" id="close-about-modal">&times;</span>
+            <img src="we.png" alt="关于我们的图片" id="about-image">
+            <div class="image-copy-toast" id="image-copy-toast">已经帮您复制成功！</div>
+        </div>
+    </div>
     <!-- 复制成功提示 -->
     <div class="copy-success" id="copy-success">复制成功咯！</div>
-
     <!-- halo-区域 -->
     <div class="slider">
         <div class="slide active">
@@ -647,13 +604,11 @@
         </div>
         <div class="scroll-down" data-lang-key="scroll-down">下滑查看更多</div>
     </div>
-
     <!-- 新页面 -->
     <div class="new-page">
         <h2 data-lang-key="new-page-title">欢迎来到新页v 面</h2>
         <p data-lang-key="new-page-desc">By yaliuz</p>
     </div>
-
     <!-- 页脚 -->
     <footer>
         <div class="footer-container">
@@ -686,82 +641,9 @@
             </div>
         </div>
     </footer>
-
     <!-- 语言切换提示 -->
     <div class="language-switch-toast" id="language-switch-toast"></div>
-
     <script>
-        // 页面加载进度条和小气泡效果
-        document.addEventListener('DOMContentLoaded', function () {
-            const progressContainer = document.getElementById('progress-container');
-            const bubbleLoader = document.querySelector('.bubble-loader');
-
-            // 模拟加载过程
-            setTimeout(() => {
-                // 进度条动画已经在CSS中定义
-
-                // 加载完成后显示小气泡
-                setTimeout(() => {
-                    bubbleLoader.style.opacity = '1';
-
-                    // 小气泡动画完成后隐藏整个进度条
-                    setTimeout(() => {
-                        progressContainer.style.opacity = '0';
-                        setTimeout(() => {
-                            progressContainer.style.display = 'none';
-                        }, 500);
-                    }, 1000);
-                }, 2000);
-            }, 100);
-        });
-
-        // 防止图片点击放大的处理
-        document.addEventListener('DOMContentLoaded', function () {
-            const aboutImage = document.getElementById('about-image');
-
-            // 阻止所有可能引起缩放的行为
-            aboutImage.addEventListener('touchstart', function (e) {
-                if (e.touches.length > 1) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
-            aboutImage.addEventListener('gesturestart', function (e) {
-                e.preventDefault();
-            });
-
-            aboutImage.addEventListener('dblclick', function (e) {
-                e.preventDefault();
-            });
-
-            // 模态框显示时禁止body滚动
-            const aboutModal = document.getElementById('about-modal');
-            const openAboutModal = document.getElementById('open-about-modal');
-            const closeAboutModal = document.getElementById('close-about-modal');
-
-            openAboutModal.addEventListener('click', function (e) {
-                e.preventDefault();
-                aboutModal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-                document.body.style.position = 'fixed';
-                document.body.style.width = '100%';
-            });
-
-            closeAboutModal.addEventListener('click', function () {
-                aboutModal.style.display = 'none';
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-            });
-
-            window.addEventListener('click', function (e) {
-                if (e.target === aboutModal) {
-                    aboutModal.style.display = 'none';
-                    document.body.style.overflow = '';
-                    document.body.style.position = '';
-                }
-            });
-        });
-
         document.addEventListener('DOMContentLoaded', function () {
             const slides = document.querySelectorAll('.slide');
             const navButtons = document.querySelectorAll('.slider-nav button');
@@ -776,6 +658,9 @@
             const aboutImage = document.getElementById('about-image');
             const copySuccess = document.getElementById('copy-success');
             const imageCopyToast = document.getElementById('image-copy-toast');
+            const progressBarLeft = document.getElementById('progress-bar-left');
+            const progressBarRight = document.getElementById('progress-bar-right');
+            const progressHeart = document.getElementById('progress-heart');
             let currentSlide = 0;
 
             const languages = {
@@ -983,6 +868,41 @@
                     }, 2000);
                 }
             }
+
+            // 页面加载进度条逻辑
+            function updateProgressBar() {
+                const totalResources = document.images.length;
+                let loadedResources = 0;
+
+                function checkLoaded() {
+                    loadedResources++;
+                    const progress = loadedResources / totalResources;
+                    progressBarLeft.style.transform = `scaleX(${progress})`;
+                    progressBarRight.style.transform = `scaleX(${progress})`;
+
+                    if (loadedResources === totalResources) {
+                        progressBarLeft.style.transform = 'scaleX(0)';
+                        progressBarRight.style.transform = 'scaleX(0)';
+                        progressHeart.style.opacity = '1';
+                        progressHeart.style.transform = 'translateX(-50%) scale(1)';
+                        setTimeout(() => {
+                            progressHeart.style.opacity = '0';
+                            progressHeart.style.transform = 'translateX(-50%) scale(0)';
+                        }, 1000);
+                    }
+                }
+
+                document.images.forEach((img) => {
+                    if (img.complete) {
+                        checkLoaded();
+                    } else {
+                        img.addEventListener('load', checkLoaded);
+                        img.addEventListener('error', checkLoaded);
+                    }
+                });
+            }
+
+            updateProgressBar();
         });
     </script>
 </body>
