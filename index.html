@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>halo,欢迎你的到来</title>
     <style>
         /* 全局样式 */
@@ -18,6 +18,39 @@
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             color: #333;
             line-height: 1.6;
+            touch-action: manipulation;
+        }
+
+        /* 加载进度条 */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: transparent;
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 400% 400%;
+            width: 0;
+            transition: width 0.3s ease;
+            animation: gradient 3s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* 头部样式 */
@@ -154,6 +187,9 @@
             object-fit: contain;
             border-radius: 8px;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         /* 电脑端样式调整，让图片缩小一半 */
@@ -447,10 +483,8 @@
             transform: translate(-50%, -50%);
             font-size: 36px;
             font-weight: bold;
-            color: #fff;
-            /* 修改为和导航栏一样的颜色 */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* 修改为和导航栏一样的字体 */
+            color: #fff; /* 修改为和导航栏一样的颜色 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 修改为和导航栏一样的字体 */
             opacity: 0;
             transition: opacity 0.5s ease;
             z-index: 1002;
@@ -483,39 +517,25 @@
             top: -30px;
             left: 50%;
             transform: translateX(-50%);
-            font-family: "楷体", "KaiTi", "STKaiti", serif;
-            /* 楷书字体设置 */
+            font-family: "楷体", "KaiTi", "STKaiti", serif; /* 楷书字体设置 */
             opacity: 0;
             transition: opacity 0.5s ease;
             font-size: 16px;
             font-weight: bold;
-            background: linear-gradient(to right, #ff9a9e, #fad0c4);
-            /* 从左到右的粉红色渐变 */
+            background: linear-gradient(to right, #ff9a9e, #fad0c4); /* 从左到右的粉红色渐变 */
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-        }
-
-        /* 页面加载进度条样式 */
-        #progress-bar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(to left, #00f, #0f0, #f00, #00f);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-            transform-origin: right;
-            transform: scaleX(0);
-            z-index: 1000;
         }
     </style>
 </head>
 
 <body>
-    <!-- 页面加载进度条 -->
-    <div id="progress-bar"></div>
+    <!-- 加载进度条 -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
     <!-- 头部 -->
     <header>
         <div class="header-container">
@@ -622,6 +642,31 @@
     <!-- 语言切换提示 -->
     <div class="language-switch-toast" id="language-switch-toast"></div>
     <script>
+        // 页面加载进度条
+        window.addEventListener('load', function() {
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '100%';
+            setTimeout(() => {
+                progressBar.style.opacity = '0';
+                setTimeout(() => {
+                    progressBar.parentElement.style.display = 'none';
+                }, 500);
+            }, 500);
+        });
+
+        // 模拟加载进度
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.getElementById('progress-bar');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = progress + '%';
+                if (progress >= 90) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             const slides = document.querySelectorAll('.slide');
             const navButtons = document.querySelectorAll('.slider-nav button');
@@ -636,7 +681,6 @@
             const aboutImage = document.getElementById('about-image');
             const copySuccess = document.getElementById('copy-success');
             const imageCopyToast = document.getElementById('image-copy-toast');
-            const progressBar = document.getElementById('progress-bar');
             let currentSlide = 0;
 
             const languages = {
@@ -788,15 +832,18 @@
             openAboutModal.addEventListener('click', function (e) {
                 e.preventDefault();
                 aboutModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // 防止背景滚动
             });
 
             closeAboutModal.addEventListener('click', function () {
                 aboutModal.style.display = 'none';
+                document.body.style.overflow = ''; // 恢复背景滚动
             });
 
             window.addEventListener('click', function (e) {
                 if (e.target === aboutModal) {
                     aboutModal.style.display = 'none';
+                    document.body.style.overflow = ''; // 恢复背景滚动
                 }
             });
 
@@ -819,6 +866,11 @@
                 }).catch(function (err) {
                     console.error('复制失败: ', err);
                 });
+            });
+
+            // 防止双击缩放
+            aboutImage.addEventListener('dblclick', function(e) {
+                e.preventDefault();
             });
 
             // 创建漂浮爱心函数
@@ -844,37 +896,8 @@
                     }, 2000);
                 }
             }
-
-            // 页面加载进度条逻辑
-            function updateProgressBar() {
-                const totalResources = document.images.length;
-                let loadedResources = 0;
-
-                function checkLoaded() {
-                    loadedResources++;
-                    const progress = loadedResources / totalResources;
-                    progressBar.style.transform = `scaleX(${progress})`;
-
-                    if (loadedResources === totalResources) {
-                        setTimeout(() => {
-                            progressBar.style.transform = 'scaleX(0)';
-                        }, 500);
-                    }
-                }
-
-                document.images.forEach((img) => {
-                    if (img.complete) {
-                        checkLoaded();
-                    } else {
-                        img.addEventListener('load', checkLoaded);
-                        img.addEventListener('error', checkLoaded);
-                    }
-                });
-            }
-
-            updateProgressBar();
         });
     </script>
 </body>
 
-</html>    
+</html>
