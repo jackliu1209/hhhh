@@ -1,560 +1,775 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>未登录</title>
+    <title>Windows 系统登录</title>
     <style>
-        /* 全局样式 */
+        :root {
+            --windows-blue: #0078D7;
+            --windows-dark: #201F1E;
+            --windows-light: #F3F2F1;
+            --windows-accent: #005A9E;
+            --windows-success: #00CC00;
+            --windows-warning: #FF9500;
+            --windows-error: #FF3B30;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
             margin: 0;
             padding: 0;
-            background: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
+            color: #333;
+            background-image: url('https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-stock-official-3840x2400-5630.jpg');
+            background-size: cover;
         }
-
-        /* 锁屏页面样式 - 恢复最初样式 */
-        #lock-screen {
+        
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            width: 420px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin: 0 0 30px;
+            font-weight: 500;
+            color: #000;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #000;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--windows-blue);
+            box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.2);
+        }
+        
+        button {
+            background-color: var(--windows-blue);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: var(--windows-accent);
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .default-account {
+            color: var(--windows-error);
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .loading-container {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #fff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
             z-index: 1000;
-        }
-
-        #lock-screen .keypad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        #lock-screen .keypad button {
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-            border: none;
-            background-color: #e0e0e0;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        #lock-screen .keypad button:hover {
-            background-color: #d0d0d0;
-        }
-
-        #lock-screen .password-display {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        #lock-screen .password-display span {
-            width: 20px;
-            height: 20px;
-            display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 18px;
+            flex-direction: column;
+            backdrop-filter: blur(5px);
         }
-
-        #lock-screen .hint {
-            font-size: 12px;
-            color: red;
-            margin-top: 10px;
-        }
-
-        /* 登录页面样式 */
-        #login-page {
-            display: none;
-            background-color: #ffffff;
-            padding: 40px;
+        
+        .loading-content {
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 0.5s ease-in-out;
-            width: 90%;
-            max-width: 400px;
-            position: relative;
+            padding: 30px;
+            width: 500px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .loading-text {
+            color: #000;
+            font-size: 18px;
+            margin: 10px 0 20px;
+            font-weight: 500;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            margin: 25px 0;
             overflow: hidden;
         }
-
-        #login-page::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(45deg);
-            animation: shineAnimation 5s linear infinite;
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--windows-blue);
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 3px;
         }
-
-        @keyframes shineAnimation {
-            0% {
-                top: -50%;
-                left: -50%;
-            }
-            100% {
-                top: 100%;
-                left: 100%;
-            }
+        
+        .progress-bar.success {
+            background-color: var(--windows-success);
         }
-
-        #login-page input {
-            width: 100%;
-            padding: 18px;
-            margin-bottom: 25px;
-            border: none;
-            font-size: 18px;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            background-color: transparent;
-            text-align: center;
-            transform: skewX(-20deg);
-        }
-
-        #login-page input div {
-            transform: skewX(20deg);
-        }
-
-        #login-page input#username {
-            border-top: none;
-            border-right: none;
-            border-top-right-radius: 0;
-        }
-
-        #login-page input#password {
-            border-bottom: none;
-            border-left: none;
-            border-bottom-left-radius: 0;
-        }
-
-        #login-page input:focus {
-            border-color: #005A9E;
-            outline: none;
-            box-shadow: 0 0 10px rgba(0, 120, 215, 0.5);
-        }
-
-        #login-page button {
-            width: 60%;
-            margin: 0 auto;
-            display: block;
-            padding: 12px;
-            background-color: #0078D7;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            transition: transform 0.3s ease;
-            position: relative;
-            transform: skewX(-20deg);
-        }
-
-        #login-page button div {
-            transform: skewX(20deg);
-        }
-
-        #login-page button:hover {
-            transform: scale(0.5) skewX(-20deg);
-        }
-
-        #login-page .hint {
-            font-size: 10px;
-            color: #e60909;
-            margin-top: 13px;
+        
+        .check-items {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
             text-align: center;
         }
-
-        /* 进度条加载动画 */
-        #loading {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
+        
+        .check-item {
+            flex: 1;
+            padding: 0 10px;
         }
-
-        #loading .progress {
-            width: 10px;
-            height: 10px;
-            background-color: white;
-            border-radius: 50%;
-            margin: 0 5px;
-            box-shadow: 0 0 10px 5px rgba(0, 120, 215, 0.3);
-            animation: breathing 1.5s infinite ease-in-out;
-            display: inline-block;
+        
+        .check-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 8px;
         }
-
-        #loading .progress:nth-child(2) {
-            animation-delay: -0.3s;
+        
+        .check-icon.loading {
+            animation: pulse 1s ease-in-out infinite;
         }
-
-        #loading .progress:nth-child(3) {
-            animation-delay: -0.6s;
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
-
-        #loading .progress:nth-child(4) {
-            animation-delay: -0.9s;
-        }
-
-        #loading .progress:nth-child(5) {
-            animation-delay: -1.2s;
-        }
-
-        @keyframes breathing {
-            0% {
-                box-shadow: 0 0 10px 5px rgba(0, 120, 215, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 20px 10px rgba(0, 120, 215, 0.6);
-            }
-            100% {
-                box-shadow: 0 0 10px 5px rgba(0, 120, 215, 0.3);
-            }
-        }
-
-        #loading-text {
-            color: #555;
+        
+        .check-title {
             font-size: 14px;
-            margin-top: 20px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
         }
-
-        .success-text {
-            color: #28a745;
+        
+        .check-status {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
         }
-
-        .error-text {
-            color: #dc3545;
+        
+        .check-status.processing {
+            color: var(--windows-blue);
         }
-
-        .info-text {
-            color: #17a2b8;
+        
+        .check-status.success {
+            color: var(--windows-success);
         }
-
-        .warning-text {
-            color: #ffc107;
+        
+        .check-status.warning {
+            color: var(--windows-warning);
         }
-
-        .region-text {
-            color: #6f42c1;
+        
+        .check-status.error {
+            color: var(--windows-error);
         }
-
-        /* 微软风格弹窗 - 保留样式 */
-        #popup {
+        
+        .footer {
+            margin-top: 25px;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* 弹窗样式 */
+        .modal {
             display: none;
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 25px;
-            border-radius: 5px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
-            width: 90%;
-            max-width: 400px;
-            border: 3px solid #0078D7;
-            border-top: 30px solid #0078D7;
-        }
-
-        #popup .title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: white;
-            text-align: center;
-            position: absolute;
-            top: -25px;
-            width: 100%;
+            top: 0;
             left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-
-        #popup .content {
-            margin-bottom: 20px;
-            color: #333;
-            line-height: 1.6;
-            font-size: 14px;
+        
+        .modal.show {
+            opacity: 1;
         }
-
-        #popup .content p {
-            margin: 8px 0;
+        
+        .modal-content {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            width: 600px;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--windows-blue);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
+            justify-content: center;
         }
-
-        #popup .content .icon {
-            margin-right: 8px;
-            font-size: 16px;
+        
+        .modal-body {
+            padding: 20px;
+            color: #333;
         }
-
-        #popup .buttons {
+        
+        .result-item {
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 6px;
+        }
+        
+        .result-icon {
+            width: 24px;
+            height: 24px;
+            justify-self: center;
+        }
+        
+        .result-text {
             display: flex;
-            justify-content: space-around;
-            gap: 15px;
-            margin-top: 20px;
+            flex-direction: column;
         }
-
-        #popup .buttons button {
-            padding: 8px 16px;
+        
+        .result-title {
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .result-desc {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .modal-btn {
+            padding: 12px 25px;
+            border-radius: 8px;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s ease;
-            flex: 1;
-            background-color: #0078D7;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+        
+        .modal-btn-primary {
+            background-color: var(--windows-blue);
             color: white;
         }
-
-        #popup .buttons button:hover {
-            background-color: #005A9E;
+        
+        .modal-btn-primary:hover {
+            background-color: var(--windows-accent);
         }
-
-        #popup .buttons .home {
-            background-color: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
+        
+        .rejection-notice {
+            color: var(--windows-error);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 0, 0, 0.1);
         }
-
-        #popup .buttons .home:hover {
-            background-color: #e0e0e0;
-        }
-
-        /* 动画 */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .login-container {
+                width: 90%;
+                padding: 20px;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            
+            .loading-content,
+            .modal-content {
+                width: 90%;
+                padding: 20px;
             }
-        }
-
-        @keyframes bubble {
-            from {
-                opacity: 1;
-                transform: scale(1);
+            
+            h1 {
+                font-size: 20px;
             }
-            to {
-                opacity: 0;
-                transform: scale(2);
+            
+            .input-group {
+                margin-bottom: 15px;
+            }
+            
+            button {
+                padding: 12px;
+            }
+            
+            .check-items {
+                flex-direction: column;
+            }
+            
+            .check-item {
+                margin-bottom: 20px;
+            }
+            
+            .result-item {
+                grid-template-columns: 30px 1fr;
+                padding: 8px;
             }
         }
     </style>
 </head>
-
 <body>
-    <!-- 锁屏页面 - 恢复最初样式 -->
-    <div id="lock-screen">
-        <div class="password-display" id="password-display"></div>
-        <div class="keypad">
-            <button onclick="enterDigit(1)">1</button>
-            <button onclick="enterDigit(2)">2</button>
-            <button onclick="enterDigit(3)">3</button>
-            <button onclick="enterDigit(4)">4</button>
-            <button onclick="enterDigit(5)">5</button>
-            <button onclick="enterDigit(6)">6</button>
-            <button onclick="enterDigit(7)">7</button>
-            <button onclick="enterDigit(8)">8</button>
-            <button onclick="enterDigit(9)">9</button>
+    <div class="login-container">
+        <h1>Windows 系统登录</h1>
+        
+        <div class="input-group">
+            <label for="username">用户名</label>
+            <input type="text" id="username" placeholder="输入用户名">
         </div>
-        <div class="hint">* 默认密码123</div>
+        
+        <div class="input-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" placeholder="输入密码">
+        </div>
+        
+        <button id="login-btn">登录</button>
+        
+        <div class="default-account">* 默认账号密码: admin</div>
+        
+        <div class="footer"></div>
     </div>
-
-    <!-- 登录页面 -->
-    <div id="login-page">
-        <input type="text" id="username" placeholder="账号">
-        <input type="password" id="password" placeholder="密码">
-        <button onclick="login()">
-            <div>登录</div>
-        </button>
-        <div class="hint">*默认密码账号为admin</div>
-    </div>
-
-    <!-- 加载动画 -->
-    <div id="loading">
-        <div class="progress"></div>
-        <div class="progress"></div>
-        <div class="progress"></div>
-        <div class="progress"></div>
-        <div class="progress"></div>
-        <div id="loading-text"></div>
-    </div>
-
-    <!-- 弹窗 -->
-    <div id="popup">
-        <div class="title">来自网页7v7.top-加密猫的提示</div>
-        <div class="content" id="popup-content"></div>
-        <div class="buttons">
-            <button class="confirm" onclick="closePopup()">确认</button>
-            <button class="home" onclick="goHome()">返回首页</button>
+    
+    <div class="loading-container" id="loading">
+        <div class="loading-content">
+            <h1>正在登录...</h1>
+            
+            <div class="loading-text">正在检查您的信息，请稍候...</div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="check-items">
+                <div class="check-item">
+                    <svg class="check-icon" id="account-icon" viewBox="0 0 24 24">
+                        <path fill="#666" d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
+                    </svg>
+                    <div class="check-title">账号密码</div>
+                    <div class="check-status" id="account-status">等待验证...</div>
+                </div>
+                
+                <div class="check-item">
+                    <svg class="check-icon" id="ip-icon" viewBox="0 0 24 24">
+                        <path fill="#666" d="M12 2A10 10 0 0 1 22 12 10 10 0 0 1 12 22 10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m0 6.5a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m-5.5 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m11 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5z"/>
+                    </svg>
+                    <div class="check-title">IP地址</div>
+                    <div class="check-status" id="ip-status">等待验证...</div>
+                </div>
+                
+                <div class="check-item">
+                    <svg class="check-icon" id="location-icon" viewBox="0 0 24 24">
+                        <path fill="#666" d="M12 11.5A2.5 2.5 0 0 1 9.5 9 2.5 2.5 0 0 1 12 6.5 2.5 2.5 0 0 1 14.5 9 2.5 2.5 0 0 1 12 11.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/>
+                    </svg>
+                    <div class="check-title">地区</div>
+                    <div class="check-status" id="location-status">等待验证...</div>
+                </div>
+                
+                <div class="check-item">
+                    <svg class="check-icon" id="device-icon" viewBox="0 0 24 24">
+                        <path fill="#666" d="M4 1h16a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 2v18h16V3H4zm6 14h4v2h-4v-2z"/>
+                    </svg>
+                    <div class="check-title">设备验证</div>
+                    <div class="check-status" id="device-status">等待验证...</div>
+                </div>
+            </div>
         </div>
     </div>
-
+    
+    <div class="modal" id="result-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">验证结果</div>
+                <button class="modal-close" id="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="result-item">
+                    <svg class="result-icon" viewBox="0 0 24 24">
+                        <path fill="#28A745" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                    </svg>
+                    <div class="result-text">
+                        <div class="result-title">账号密码验证</div>
+                        <div class="result-desc" id="modal-account">验证成功</div>
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <svg class="result-icon" viewBox="0 0 24 24">
+                        <path fill="#0078D7" d="M12 2A10 10 0 0 1 22 12 10 10 0 0 1 12 22 10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m0 6.5a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m-5.5 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m11 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5z"/>
+                    </svg>
+                    <div class="result-text">
+                        <div class="result-title">IP地址验证</div>
+                        <div class="result-desc" id="modal-ip">检测到IP: <span id="modal-ip-value">获取中...</span></div>
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <svg class="result-icon" viewBox="0 0 24 24">
+                        <path fill="#FF9500" d="M12 11.5A2.5 2.5 0 0 1 9.5 9 2.5 2.5 0 0 1 12 6.5 2.5 2.5 0 0 1 14.5 9 2.5 2.5 0 0 1 12 11.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/>
+                    </svg>
+                    <div class="result-text">
+                        <div class="result-title">地区验证</div>
+                        <div class="result-desc" id="modal-location">检测到地区: <span id="modal-location-value">获取中...</span></div>
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <svg class="result-icon" viewBox="0 0 24 24">
+                        <path fill="#FF3B30" d="M4 1h16a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 2v18h16V3H4zm6 14h4v2h-4v-2z"/>
+                    </svg>
+                    <div class="result-text">
+                        <div class="result-title">设备验证</div>
+                        <div class="result-desc" id="modal-device">设备信息: <span id="modal-device-value">获取中...</span></div>
+                    </div>
+                </div>
+                
+                <div class="rejection-notice" id="rejection-notice">
+                    服务器拒绝了您的登陆申请
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-primary" id="modal-confirm">确定</button>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        // 获取DOM元素
-        const passwordDisplay = document.getElementById('password-display');
-        const lockScreen = document.getElementById('lock-screen');
-        const loginPage = document.getElementById('login-page');
-        const loading = document.getElementById('loading');
-        const loadingText = document.getElementById('loading-text');
-        const popup = document.getElementById('popup');
-        const popupContent = document.getElementById('popup-content');
-        const progress = document.getElementById('progress');
-        let enteredPassword = '';
-
-        // 输入密码
-        function enterDigit(digit) {
-            enteredPassword += digit;
-            const span = document.createElement('span');
-            const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-            span.style.color = randomColor;
-            span.textContent = '*';
-            passwordDisplay.appendChild(span);
-
-            if (enteredPassword === '123') {
-                // 密码正确，消失动画
-                const spans = passwordDisplay.querySelectorAll('span');
-                spans.forEach((span, index) => {
-                    setTimeout(() => {
-                        span.style.animation = 'bubble 0.5s ease-out forwards';
-                    }, index * 100);
-                });
-
-                setTimeout(() => {
-                    lockScreen.style.display = 'none';
-                    loginPage.style.display = 'block';  // 显示登录页面，需要输入账号密码
-                }, 600);
-            }
-        }
-
-        // 登录
-        function login() {
+        const DEFAULT_USERNAME = 'admin';
+        const DEFAULT_PASSWORD = 'admin';
+        
+        document.getElementById('login-btn').addEventListener('click', handleLogin);
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleLogin();
+        });
+        
+        async function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
-            if (username === 'admin' && password === 'admin') {
-                loginPage.style.display = 'none';
-                loading.style.display = 'block';
-                loadingText.textContent = '账号密码验证成功';
-                loadingText.className = 'success-text';
-
-                setTimeout(() => {
-                    loadingText.textContent = '正在匹配设备状态';
-                    loadingText.className = '';
-
-                    setTimeout(() => {
-                        // 获取设备型号
-                        const deviceModel = navigator.userAgent;
-                        const modelMatch = deviceModel.match(/(iPhone|iPad|iPod|Android|Windows Phone|Macintosh|Windows NT|Linux).*?;/);
-                        const model = modelMatch ? modelMatch[1] : '未知型号';
-                        loadingText.innerHTML = `<span class="error-text">设备匹配失败</span><br>当前设备型号: ${model}`;
-
-                        setTimeout(() => {
-                            loadingText.textContent = '正在核对当前ip';
-                            loadingText.className = '';
-
-                            // 获取 IP 地址
-                            fetch('https://api.ipify.org?format=json')
-                                .then(response => response.json())
-                                .then(data => {
-                                    const ip = data.ip;
-                                    loadingText.innerHTML = `<span class="info-text">当前网络的ip为: ${ip}</span>`;
-
-                                    setTimeout(() => {
-                                        loadingText.innerHTML = '<span class="error-text">ip核对失败</span>';
-
-                                        setTimeout(() => {
-                                            loadingText.textContent = '正在判断是否为常用地区';
-                                            loadingText.className = 'region-text';
-
-                                            // 获取 IP 所在地区
-                                            fetch(`https://ipapi.co/${ip}/json/`)
-                                                .then(response => response.json())
-                                                .then(data => {
-                                                    const region = data.region || '未知地区';
-                                                    const city = data.city || '未知城市';
-
-                                                    const content = `
-                                                        <p><span class="icon">✔️</span> <span class="success-text">账号密码正确</span></p>
-                                                        <p><span class="icon">❌</span> <span class="error-text">设备匹配失败 - 当前设备型号: ${model}</span></p>
-                                                        <p><span class="icon">🔍</span> 当前IP地址为 ${ip}，当前网络不符合登陆要求</p>
-                                                        <p><span class="icon">📍</span> <span class="region-text">当前的地区为: ${region} ${city}</span></p>
-                                                        <p><span class="icon">⚠️</span> <span class="error-text">地区环境不匹配</span></p>
-                                                        <p style="color: purple;">是否允许登陆</p>
-                                                        <p style="color: #FF0000; font-weight: bold;">否</p> 
-                                                        <p style="color: red; font-weight: bold; text-align: center;">您的登陆申请被服务端拒绝，请联系管理员处理！</p>
-                                                    `;
-
-                                                    loading.style.display = 'none';
-                                                    popupContent.innerHTML = content;
-                                                    popup.style.display = 'block';
-                                                })
-                                                .catch(error => {
-                                                    showNetworkError(ip, model);
-                                                });
-                                        }, 1000);
-                                    }, 1000);
-                                })
-                                .catch(error => {
-                                    showNetworkError('未知IP', model);
-                                });
-                        }, 1000);
-                    }, 1000);
-                }, 1000);
-            } else {
-                alert('账号或密码错误');
-            }
+            
+            const loading = document.getElementById('loading');
+            loading.style.display = 'flex';
+            
+            const accountIcon = document.getElementById('account-icon');
+            const accountStatus = document.getElementById('account-status');
+            const ipIcon = document.getElementById('ip-icon');
+            const ipStatus = document.getElementById('ip-status');
+            const locationIcon = document.getElementById('location-icon');
+            const locationStatus = document.getElementById('location-status');
+            const deviceIcon = document.getElementById('device-icon');
+            const deviceStatus = document.getElementById('device-status');
+            const progressBar = document.getElementById('progress-bar');
+            
+            resetStatus(accountIcon, accountStatus, ipIcon, ipStatus, locationIcon, locationStatus, deviceIcon, deviceStatus);
+            progressBar.className = 'progress-bar';
+            progressBar.style.width = '0%';
+            
+            await simulateLogin(username, password, progressBar, accountIcon, accountStatus, ipIcon, ipStatus, locationIcon, locationStatus, deviceIcon, deviceStatus);
         }
-
-        // 显示网络错误
-        function showNetworkError(ip, model) {
-            const content = `
-                <p><span class="icon">✔️</span> <span class="success-text">账号密码正确</span></p>
-                <p><span class="icon">❌</span> <span class="error-text">设备匹配失败 - 当前设备型号: ${model}</span></p>
-                <p><span class="icon">🔍</span> 当前IP地址为- ${ip}，当前网络不符合登陆要求</p>
-                <p><span class="icon">⚠️</span> <span class="error-text">无法获取地区信息</span></p>
-                <p style="color: purple;">*登陆被拦截*</p>
+        
+        function resetStatus(accountIcon, accountStatus, ipIcon, ipStatus, locationIcon, locationStatus, deviceIcon, deviceStatus) {
+            accountIcon.innerHTML = '<path fill="#666" d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>';
+            ipIcon.innerHTML = '<path fill="#666" d="M12 2A10 10 0 0 1 22 12 10 10 0 0 1 12 22 10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m0 6.5a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m-5.5 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m11 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5z"/>';
+            locationIcon.innerHTML = '<path fill="#666" d="M12 11.5A2.5 2.5 0 0 1 9.5 9 2.5 2.5 0 0 1 12 6.5 2.5 2.5 0 0 1 14.5 9 2.5 2.5 0 0 1 12 11.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/>';
+            deviceIcon.innerHTML = '<path fill="#666" d="M4 1h16a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 2v18h16V3H4zm6 14h4v2h-4v-2z"/>';
+            accountStatus.textContent = "等待验证...";
+            ipStatus.textContent = "等待验证...";
+            locationStatus.textContent = "等待验证...";
+            deviceStatus.textContent = "等待验证...";
+            accountStatus.className = "check-status";
+            ipStatus.className = "check-status";
+            locationStatus.className = "check-status";
+            deviceStatus.className = "check-status";
+        }
+        
+        async function simulateLogin(username, password, progressBar, accountIcon, accountStatus, ipIcon, ipStatus, locationIcon, locationStatus, deviceIcon, deviceStatus) {
+            try {
+                // 账号密码验证
+                accountIcon.classList.add('loading');
+                accountStatus.textContent = "正在验证...";
+                accountStatus.classList.add('processing');
+                await updateProgress(progressBar, 30, 1000);
                 
-                <p style="color: red; font-weight: bold; text-align: center;">您的登陆申请被服务端拒绝，请联系管理员处理！</p>
-            `;
-
-            loading.style.display = 'none';
-            popupContent.innerHTML = content;
-            popup.style.display = 'block';
-        }
-
-        // 关闭弹窗
-        function closePopup() {
-            popup.style.display = 'none';
-            loginPage.style.display = 'block';
-        }
-
-        // 返回首页
-        function goHome() {
-            window.location.href = 'https://7v7.top';
-        }
-
-        // 监听键盘事件，回车键触发登录
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' && loginPage.style.display === 'block') {
-                login();
+                if (username === DEFAULT_USERNAME && password === DEFAULT_PASSWORD) {
+                    accountIcon.classList.remove('loading');
+                    accountIcon.innerHTML = '<path fill="#28A745" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>';
+                    accountStatus.textContent = "验证成功";
+                    accountStatus.classList.remove('processing');
+                    accountStatus.classList.add('success');
+                    progressBar.classList.add('success');
+                } else {
+                    accountIcon.classList.remove('loading');
+                    accountIcon.innerHTML = '<path fill="#FF3B30" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>';
+                    accountStatus.textContent = "验证失败";
+                    accountStatus.classList.remove('processing');
+                    accountStatus.classList.add('error');
+                    
+                    setTimeout(() => {
+                        document.getElementById('loading').style.display = 'none';
+                        alert('账号或密码错误，请使用默认账号: admin');
+                    }, 500);
+                    return;
+                }
+                
+                // IP地址验证
+                ipIcon.classList.add('loading');
+                ipStatus.textContent = "正在验证...";
+                ipStatus.classList.add('processing');
+                await updateProgress(progressBar, 60, 1500);
+                
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    const userIP = ipData.ip;
+                    
+                    ipIcon.classList.remove('loading');
+                    ipIcon.innerHTML = '<path fill="#0078D7" d="M12 2A10 10 0 0 1 22 12 10 10 0 0 1 12 22 10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m0 6.5a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m-5.5 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m11 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5z"/>';
+                    ipStatus.textContent = userIP;
+                    ipStatus.classList.remove('processing');
+                    ipStatus.classList.add('success');
+                    
+                    // 地区验证
+                    locationIcon.classList.add('loading');
+                    locationStatus.textContent = "正在验证...";
+                    locationStatus.classList.add('processing');
+                    await updateProgress(progressBar, 75, 1000);
+                    
+                    try {
+                        const locationResponse = await fetch(`https://ipapi.co/${userIP}/json/`);
+                        const locationData = await locationResponse.json();
+                        const userLocation = locationData.country_name ? 
+                            `${locationData.country_name}${locationData.region ? ', ' + locationData.region : ''}${locationData.city ? ', ' + locationData.city : ''}` : 
+                            '未知地区';
+                        
+                        locationIcon.classList.remove('loading');
+                        locationIcon.innerHTML = '<path fill="#FF9500" d="M12 11.5A2.5 2.5 0 0 1 9.5 9 2.5 2.5 0 0 1 12 6.5 2.5 2.5 0 0 1 14.5 9 2.5 2.5 0 0 1 12 11.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/>';
+                        locationStatus.textContent = userLocation;
+                        locationStatus.classList.remove('processing');
+                        locationStatus.classList.add('warning');
+                    } catch (error) {
+                        console.error('获取地区信息失败:', error);
+                        locationIcon.classList.remove('loading');
+                        locationIcon.innerHTML = '<path fill="#FF3B30" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>';
+                        locationStatus.textContent = "获取失败";
+                        locationStatus.classList.remove('processing');
+                        locationStatus.classList.add('error');
+                    }
+                } catch (error) {
+                    console.error('获取IP地址失败:', error);
+                    ipIcon.classList.remove('loading');
+                    ipIcon.innerHTML = '<path fill="#FF3B30" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>';
+                    ipStatus.textContent = "获取失败";
+                    ipStatus.classList.remove('processing');
+                    ipStatus.classList.add('error');
+                }
+                
+                // 设备验证
+                deviceIcon.classList.add('loading');
+                deviceStatus.textContent = "正在验证...";
+                deviceStatus.classList.add('processing');
+                await updateProgress(progressBar, 90, 1000);
+                
+                try {
+                    const deviceInfo = getDeviceInfo();
+                    
+                    deviceIcon.classList.remove('loading');
+                    deviceIcon.innerHTML = '<path fill="#FF3B30" d="M4 1h16a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 2v18h16V3H4zm6 14h4v2h-4v-2z"/>';
+                    deviceStatus.textContent = deviceInfo;
+                    deviceStatus.classList.remove('processing');
+                    deviceStatus.classList.add('error');
+                } catch (error) {
+                    console.error('获取设备信息失败:', error);
+                    deviceIcon.classList.remove('loading');
+                    deviceIcon.innerHTML = '<path fill="#FF3B30" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>';
+                    deviceStatus.textContent = "获取失败";
+                    deviceStatus.classList.remove('processing');
+                    deviceStatus.classList.add('error');
+                }
+                
+                await updateProgress(progressBar, 100, 500);
+                
+                showResultModal();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').style.display = 'none';
+                alert('登录过程中出错');
             }
-        });
+        }
+        
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            let deviceType = "未知设备";
+            
+            if (/Mobile|Android|iPhone|iPad|iPod|Windows Phone/i.test(userAgent)) {
+                deviceType = "移动设备";
+            } else if (/Windows NT/i.test(userAgent)) {
+                deviceType = "Windows 电脑";
+            } else if (/Macintosh|Mac OS X/i.test(userAgent)) {
+                deviceType = "Mac 电脑";
+            } else if (/Linux/i.test(userAgent)) {
+                deviceType = "Linux 电脑";
+            }
+            
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+            
+            return `${deviceType} (${screenWidth}×${screenHeight})`;
+        }
+        
+        function updateProgress(progressBar, targetPercent, duration) {
+            return new Promise(resolve => {
+                const startPercent = parseInt(progressBar.style.width) || 0;
+                const startTime = Date.now();
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const currentPercent = startPercent + (targetPercent - startPercent) * progress;
+                    progressBar.style.width = currentPercent + '%';
+                    if (progress < 1) requestAnimationFrame(animate);
+                    else resolve();
+                };
+                
+                animate();
+            });
+        }
+        
+        async function showResultModal() {
+            const modal = document.getElementById('result-modal');
+            
+            // 获取IP地址
+            try {
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                document.getElementById('modal-ip-value').textContent = ipData.ip;
+                
+                // 获取地区信息
+                const locationResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
+                const locationData = await locationResponse.json();
+                const userLocation = locationData.country_name ? 
+                    `${locationData.country_name}${locationData.region ? ', ' + locationData.region : ''}${locationData.city ? ', ' + locationData.city : ''}` : 
+                    '未知地区';
+                document.getElementById('modal-location-value').textContent = userLocation;
+            } catch (error) {
+                console.error('获取IP或地区信息失败:', error);
+                document.getElementById('modal-ip-value').textContent = '获取失败';
+                document.getElementById('modal-location-value').textContent = '获取失败';
+            }
+            
+            // 获取设备信息
+            document.getElementById('modal-device-value').textContent = getDeviceInfo();
+            
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+            
+            document.getElementById('modal-close').addEventListener('click', function() {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.getElementById('loading').style.display = 'none';
+                }, 300);
+            }, { once: true });
+            
+            document.getElementById('modal-confirm').addEventListener('click', function() {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.getElementById('loading').style.display = 'none';
+                }, 300);
+            }, { once: true });
+        }
     </script>
 </body>
-
-</html>    
+</html>
