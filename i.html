@@ -2,774 +2,751 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Windows 系统登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>未登录</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --windows-blue: #0078D7;
-            --windows-dark: #201F1E;
-            --windows-light: #F3F2F1;
-            --windows-accent: #005A9E;
-            --windows-success: #00CC00;
-            --windows-warning: #FF9500;
-            --windows-error: #FF3B30;
+            --error-color: rgba(255, 51, 51, 0.9);
+            --highlight-color: rgba(0, 120, 215, 0.3);
+            --gradient-start: #FF00CC;
+            --gradient-mid1: #00FF99;
+            --gradient-mid2: #FFFF00;
+            --gradient-mid3: #FF6600;
+            --gradient-end: #FF00FF;
         }
         
         body {
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #333;
-            background-image: url('https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-stock-official-3840x2400-5630.jpg');
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-image: url('https://firefox-settings-attachments.cdn.mozilla.net/main-workspace/newtab-wallpapers-v2/5344443f-f427-4029-bc6b-68bc22f83355.avif');
             background-size: cover;
-        }
-        
-        .login-container {
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            width: 420px;
-            padding: 40px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-        
-        h1 {
-            font-size: 24px;
-            margin: 0 0 30px;
-            font-weight: 500;
-            color: #000;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #000;
-            font-weight: 500;
-        }
-        
-        input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            font-size: 14px;
-            box-sizing: border-box;
-            background-color: rgba(255, 255, 255, 0.7);
-            transition: all 0.2s;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: var(--windows-blue);
-            box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.2);
-        }
-        
-        button {
-            background-color: var(--windows-blue);
-            color: white;
-            border: none;
-            padding: 14px;
-            width: 100%;
-            border-radius: 8px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-            margin-top: 10px;
-        }
-        
-        button:hover {
-            background-color: var(--windows-accent);
-        }
-        
-        button:active {
-            transform: scale(0.98);
-        }
-        
-        .default-account {
-            color: var(--windows-error);
-            font-size: 13px;
-            margin-top: 10px;
-            text-align: center;
-            font-weight: 500;
-        }
-        
-        .loading-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
             flex-direction: column;
-            backdrop-filter: blur(5px);
-        }
-        
-        .loading-content {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            padding: 30px;
-            width: 500px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-        
-        .loading-text {
-            color: #000;
-            font-size: 18px;
-            margin: 10px 0 20px;
-            font-weight: 500;
-        }
-        
-        .progress-container {
-            width: 100%;
-            height: 5px;
-            background-color: rgba(0, 0, 0, 0.1);
-            border-radius: 3px;
-            margin: 25px 0;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background-color: var(--windows-blue);
-            width: 0%;
-            transition: width 0.4s ease;
-            border-radius: 3px;
-        }
-        
-        .progress-bar.success {
-            background-color: var(--windows-success);
-        }
-        
-        .check-items {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            text-align: center;
-        }
-        
-        .check-item {
-            flex: 1;
-            padding: 0 10px;
-        }
-        
-        .check-icon {
-            width: 24px;
-            height: 24px;
-            margin-bottom: 8px;
-        }
-        
-        .check-icon.loading {
-            animation: pulse 1s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        .check-title {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        .check-status {
-            font-size: 13px;
-            color: #666;
-            font-weight: 500;
-        }
-        
-        .check-status.processing {
-            color: var(--windows-blue);
-        }
-        
-        .check-status.success {
-            color: var(--windows-success);
-        }
-        
-        .check-status.warning {
-            color: var(--windows-warning);
-        }
-        
-        .check-status.error {
-            color: var(--windows-error);
-        }
-        
-        .footer {
-            margin-top: 25px;
-            font-size: 13px;
-            color: #666;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        /* 弹窗样式 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 2000;
             justify-content: center;
             align-items: center;
+            color: white;
+            position: relative;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+            clip-path: circle(0% at 50% 50%);
+            animation: backgroundExpand 1.5s ease-out forwards;
+            transform: translateZ(0);
+            will-change: clip-path;
+        }
+
+        @keyframes backgroundExpand {
+            0% {
+                clip-path: circle(0% at 50% 50%);
+            }
+            1% {
+                clip-path: circle(calc(clamp(80px, 25vw, 150px) / 2 + 3px at 50% 50%));
+            }
+            100% {
+                clip-path: circle(150% at 50% 50%);
+            }
+        }
+
+        .time, .date, .user-name, .login-container, .footer {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .time.show, .date.show, .user-name.show, .login-container.show, .footer.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .time {
+            font-size: clamp(3em, 15vw, 6em);
+            font-weight: lighter;
+            margin-bottom: 0;
+            text-align: center;
+        }
+
+        .date {
+            font-size: clamp(1em, 4vw, 1.5em);
+            margin-top: 0.5em;
+            margin-bottom: clamp(30px, 8vh, 80px);
+            text-align: center;
+        }
+
+        .avatar-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: clamp(80px, 25vw, 150px);
+            height: clamp(80px, 25vw, 150px);
+            border-radius: 50%;
+            background-color: rgba(68, 68, 68, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(40px, 12vw, 80px);
+            color: #ddd;
             backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            overflow: hidden;
+            position: relative;
+            border: 3px solid var(--gradient-start);
+            cursor: pointer;
+            z-index: 1;
+            transform: translateZ(0);
+            will-change: transform;
+            animation: breatheWithSmoke 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes breatheWithSmoke {
+            0% { 
+                transform: scale(1); 
+                box-shadow: 0 0 20px rgba(255, 0, 204, 0.7); 
+                border-color: var(--gradient-start); 
+            }
+            50% { 
+                transform: scale(1.05); 
+                box-shadow: 0 0 30px rgba(255, 102, 0, 0.9); 
+                border-color: var(--gradient-mid3); 
+            }
+            100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 20px rgba(255, 0, 255, 0.7); 
+                border-color: var(--gradient-end); 
+            }
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .user-name {
+            font-size: clamp(1.5em, 7vw, 2.2em);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-mid1), var(--gradient-mid2), var(--gradient-mid3), var(--gradient-end));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(255, 0, 204, 0.5);
+            animation: fluidText 4s ease-in-out infinite;
+        }
+
+        @keyframes fluidText {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: min(90%, 300px);
+        }
+
+        .password-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 25px;
+            color: white;
+            font-size: 1em;
+            box-sizing: border-box;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .password-input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .arrow-button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .arrow-button:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.9em;
+            height: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+            width: 100%;
             opacity: 0;
             transition: opacity 0.3s ease;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
-        
-        .modal.show {
+
+        .error-message.show {
             opacity: 1;
         }
-        
-        .modal-content {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            width: 600px;
-            padding: 0;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-        
-        .modal-header {
-            padding: 20px;
+
+        .options {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--windows-blue);
-            color: white;
-            border-radius: 10px 10px 0 0;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
         }
-        
-        .modal-title {
-            font-size: 20px;
-            font-weight: 500;
-        }
-        
-        .modal-close {
-            background: none;
+
+        .option-button {
+            background: transparent;
             border: none;
             color: white;
-            font-size: 22px;
             cursor: pointer;
-            line-height: 1;
-            padding: 0;
-            width: 24px;
-            height: 24px;
+            font-size: clamp(0.8em, 3vw, 0.9em);
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .option-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+            position: relative;
+        }
+
+        .icon:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .panel {
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            width: 250px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .panel.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .panel-item {
             display: flex;
             align-items: center;
-            justify-content: center;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            position: relative;
         }
-        
-        .modal-body {
-            padding: 20px;
-            color: #333;
+
+        .panel-item:hover {
+            background: var(--highlight-color);
         }
-        
-        .result-item {
-            display: grid;
-            grid-template-columns: 40px 1fr;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.5);
-            border-radius: 6px;
+
+        .panel-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            color: white;
         }
-        
-        .result-icon {
-            width: 24px;
-            height: 24px;
-            justify-self: center;
-        }
-        
-        .result-text {
+
+        .wifi-list {
             display: flex;
             flex-direction: column;
+            gap: 8px;
         }
-        
-        .result-title {
-            font-weight: 500;
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-        
-        .result-desc {
-            font-size: 14px;
-            color: #333;
-            line-height: 1.4;
-        }
-        
-        .modal-footer {
-            padding: 15px 20px;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+        .wifi-network {
             display: flex;
-            justify-content: flex-end;
-        }
-        
-        .modal-btn {
-            padding: 12px 25px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 15px;
-            transition: all 0.2s;
-        }
-        
-        .modal-btn-primary {
-            background-color: var(--windows-blue);
+            align-items: center;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: default;
             color: white;
         }
-        
-        .modal-btn-primary:hover {
-            background-color: var(--windows-accent);
+
+        .wifi-network i {
+            color: white;
+            margin-right: 15px;
         }
-        
-        .rejection-notice {
-            color: var(--windows-error);
-            font-size: 16px;
-            font-weight: 600;
+
+        .qr-code {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 20;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .usb-panel {
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            width: 250px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            color: white;
             text-align: center;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 0, 0, 0.1);
         }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .login-container {
-                width: 90%;
-                padding: 20px;
+
+        .usb-panel.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .date {
+                margin-bottom: 40px;
             }
             
-            .loading-content,
-            .modal-content {
-                width: 90%;
-                padding: 20px;
+            .password-input {
+                padding: 15px 50px 15px 20px;
             }
             
-            h1 {
-                font-size: 20px;
+            .footer {
+                bottom: 15px;
+                right: 15px;
             }
             
-            .input-group {
-                margin-bottom: 15px;
+            .icon {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
             }
             
-            button {
-                padding: 12px;
+            .panel, .usb-panel {
+                width: 220px;
+                right: -10px;
             }
             
-            .check-items {
+            .qr-code {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .time {
+                font-size: 2.5em;
+            }
+            
+            .date {
+                font-size: 1em;
+                margin-bottom: 30px;
+            }
+            
+            .options {
                 flex-direction: column;
+                align-items: center;
+                gap: 5px;
             }
             
-            .check-item {
-                margin-bottom: 20px;
+            .panel, .usb-panel {
+                width: 200px;
             }
             
-            .result-item {
-                grid-template-columns: 30px 1fr;
-                padding: 8px;
+            .qr-code {
+                width: 100px;
+                height: 100px;
             }
         }
     </style>
 </head>
+
 <body>
+    <div class="time" id="time">14:25</div>
+    <div class="date" id="date">2023年5月10日</div>
+
+    <div class="avatar-container">
+        <div class="avatar" id="avatar">
+            <img src="https://via.placeholder.com/150/cccccc/969696?text=头像" alt="用户头像">
+        </div>
+    </div>
+    <div class="user-name">yaliuz</div>
+
     <div class="login-container">
-        <h1>Windows 系统登录</h1>
-        
-        <div class="input-group">
-            <label for="username">用户名</label>
-            <input type="text" id="username" placeholder="输入用户名">
+        <div class="password-container">
+            <input type="password" class="password-input" placeholder="密码" id="password">
+            <button class="arrow-button"><i class="fas fa-arrow-right"></i></button>
         </div>
+        <div class="error-message" id="errorMessage"></div>
         
-        <div class="input-group">
-            <label for="password">密码</label>
-            <input type="password" id="password" placeholder="输入密码">
+        <div class="options">
+            <button class="option-button" id="resetPasswordBtn">管理员不允许重置密码</button>
+            <button class="option-button" id="otherUserBtn">其他用户</button>
         </div>
-        
-        <button id="login-btn">登录</button>
-        
-        <div class="default-account">* 默认账号密码: admin</div>
-        
-        <div class="footer"></div>
     </div>
-    
-    <div class="loading-container" id="loading">
-        <div class="loading-content">
-            <h1>正在登录...</h1>
-            
-            <div class="loading-text">正在检查您的信息，请稍候...</div>
-            
-            <div class="progress-container">
-                <div class="progress-bar" id="progress-bar"></div>
+
+    <div class="footer">
+        <div class="icon" title="网络" id="wifiBtn">
+            <i class="fas fa-wifi"></i>
+            <div class="panel" id="wifiPanel">
+                <div class="panel-item" style="pointer-events: none;">
+                    <i class="fas fa-wifi"></i>
+                    <span>Wi-Fi 网络</span>
+                </div>
+                <div class="wifi-list">
+                    <div class="wifi-network">
+                        <i class="fas fa-wifi"></i>
+                        <span>不匹配的IP</span>
+                    </div>
+                    <div class="wifi-network">
+                        <i class="fas fa-wifi"></i>
+                        <span>不匹配的IP</span>
+                    </div>
+                    <div class="wifi-network">
+                        <i class="fas fa-wifi"></i>
+                        <span>不匹配的IP</span>
+                    </div>
+                </div>
             </div>
-            
-            <div class="check-items">
-                <div class="check-item">
-                    <svg class="check-icon" id="account-icon" viewBox="0 0 24 24">
-                        <path fill="#666" d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
-                    </svg>
-                    <div class="check-title">账号密码</div>
-                    <div class="check-status" id="account-status">等待验证...</div>
+        </div>
+        
+        <div class="icon" title="电源选项" id="powerBtn">
+            <i class="fas fa-power-off"></i>
+            <div class="panel" id="powerPanel">
+                <div class="panel-item" id="qrTrigger">
+                    <i class="fas fa-qrcode"></i>
+                    <span>我的二维码</span>
                 </div>
-                
-                <div class="check-item">
-                    <svg class="check-icon" id="ip-icon" viewBox="0 0 24 24">
-                        <path fill="#666" d="M12 2A10 10 0 0 1 22 12 10 10 0 0 1 12 22 10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m0 6.5a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m-5.5 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m11 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5z"/>
-                    </svg>
-                    <div class="check-title">IP地址</div>
-                    <div class="check-status" id="ip-status">等待验证...</div>
+                <div class="panel-item" id="exitBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出</span>
                 </div>
-                
-                <div class="check-item">
-                    <svg class="check-icon" id="location-icon" viewBox="0 0 24 24">
-                        <path fill="#666" d="M12 11.5A2.5 2.5 0 0 1 9.5 9 2.5 2.5 0 0 1 12 6.5 2.5 2.5 0 0 1 14.5 9 2.5 2.5 0 0 1 12 11.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/>
-                    </svg>
-                    <div class="check-title">地区</div>
-                    <div class="check-status" id="location-status">等待验证...</div>
+                <div class="panel-item" id="homeBtn">
+                    <i class="fas fa-home"></i>
+                    <span>返回首页</span>
                 </div>
-                
-                <div class="check-item">
-                    <svg class="check-icon" id="device-icon" viewBox="0 0 24 24">
-                        <path fill="#666" d="M4 1h16a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 2v18h16V3H4zm6 14h4v2h-4v-2z"/>
-                    </svg>
-                    <div class="check-title">设备验证</div>
-                    <div class="check-status" id="device-status">等待验证...</div>
-                </div>
+            </div>
+        </div>
+
+        <div class="icon" title="Windows设备" id="usbBtn">
+            <i class="fas fa-desktop"></i>
+            <div class="usb-panel" id="usbPanel">
+                <span>未能匹配有效设备</span>
             </div>
         </div>
     </div>
-    
-    <div class="modal" id="result-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">验证结果</div>
-                <button class="modal-close" id="modal-close">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="result-item">
-                    <svg class="result-icon" viewBox="0 0 24 24">
-                        <path fill="#28A745" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
-                    </svg>
-                    <div class="result-text">
-                        <div class="result-title">账号密码验证</div>
-                        <div class="result-desc" id="modal-account">验证成功</div>
-                    </div>
-                </div>
-                
-                <div class="result-item">
-                    <svg class="result-icon" viewBox="0 0 24 24">
-                        <path fill="#0078D7" d="M12 2A10 10 0 0 1 22 12 10 10 0 0 1 12 22 10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m0 6.5a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m-5.5 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m11 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5z"/>
-                    </svg>
-                    <div class="result-text">
-                        <div class="result-title">IP地址验证</div>
-                        <div class="result-desc" id="modal-ip">检测到IP: <span id="modal-ip-value">获取中...</span></div>
-                    </div>
-                </div>
-                
-                <div class="result-item">
-                    <svg class="result-icon" viewBox="0 0 24 24">
-                        <path fill="#FF9500" d="M12 11.5A2.5 2.5 0 0 1 9.5 9 2.5 2.5 0 0 1 12 6.5 2.5 2.5 0 0 1 14.5 9 2.5 2.5 0 0 1 12 11.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/>
-                    </svg>
-                    <div class="result-text">
-                        <div class="result-title">地区验证</div>
-                        <div class="result-desc" id="modal-location">检测到地区: <span id="modal-location-value">获取中...</span></div>
-                    </div>
-                </div>
-                
-                <div class="result-item">
-                    <svg class="result-icon" viewBox="0 0 24 24">
-                        <path fill="#FF3B30" d="M4 1h16a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 2v18h16V3H4zm6 14h4v2h-4v-2z"/>
-                    </svg>
-                    <div class="result-text">
-                        <div class="result-title">设备验证</div>
-                        <div class="result-desc" id="modal-device">设备信息: <span id="modal-device-value">获取中...</span></div>
-                    </div>
-                </div>
-                
-                <div class="rejection-notice" id="rejection-notice">
-                    服务器拒绝了您的登陆申请
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn modal-btn-primary" id="modal-confirm">确定</button>
-            </div>
-        </div>
+
+    <div class="qr-code" id="qrCode">
+        <img src="https://via.placeholder.com/150/ffffff/969696?text=二维码" alt="微信二维码">
     </div>
-    
+
     <script>
-        const DEFAULT_USERNAME = 'admin';
-        const DEFAULT_PASSWORD = 'admin';
-        
-        document.getElementById('login-btn').addEventListener('click', handleLogin);
+        function updateTime() {
+            const now = new Date();
+            const timeElement = document.getElementById('time');
+            const dateElement = document.getElementById('date');
+
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            timeElement.textContent = `${hours}:${minutes}`;
+
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            dateElement.textContent = `${year}年${month}月${day}日`;
+        }
+
+        updateTime();
+        setInterval(updateTime, 60000);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 确保头像完全加载后再开始背景动画
+            const avatarImg = document.querySelector('.avatar img');
+            
+            function startAnimation() {
+                setTimeout(() => {
+                    document.querySelector('.time').classList.add('show');
+                    document.querySelector('.date').classList.add('show');
+                    document.querySelector('.user-name').classList.add('show');
+                    document.querySelector('.login-container').classList.add('show');
+                    document.querySelector('.footer').classList.add('show');
+                }, 1500);
+            }
+
+            if (avatarImg.complete) {
+                startAnimation();
+            } else {
+                avatarImg.addEventListener('load', startAnimation);
+                avatarImg.addEventListener('error', startAnimation); // 即使加载失败也继续
+            }
+
+            // 优化动画性能
+            if ('requestAnimationFrame' in window) {
+                requestAnimationFrame(() => {
+                    document.querySelector('body::before').style.animation = 'backgroundExpand 1.5s ease-out forwards';
+                });
+            }
+        });
+
+        document.querySelector('.arrow-button').addEventListener('click', function() {
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (password) {
+                errorMessage.textContent = "IP不匹配，拒绝登陆";
+                errorMessage.classList.add('show');
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 3000);
+            } else {
+                errorMessage.textContent = "请输入密码";
+                errorMessage.classList.add('show');
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 3000);
+            }
+        });
+
         document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleLogin();
+            if (e.key === 'Enter') {
+                document.querySelector('.arrow-button').click();
+            }
+        });
+
+        const wifiBtn = document.getElementById('wifiBtn');
+        const powerBtn = document.getElementById('powerBtn');
+        const usbBtn = document.getElementById('usbBtn');
+        const wifiPanel = document.getElementById('wifiPanel');
+        const powerPanel = document.getElementById('powerPanel');
+        const usbPanel = document.getElementById('usbPanel');
+        const qrCode = document.getElementById('qrCode');
+        const qrTrigger = document.getElementById('qrTrigger');
+        const avatar = document.getElementById('avatar');
+        
+        let activePanel = null;
+
+        function togglePanel(panel, btn) {
+            if (activePanel === panel) {
+                panel.classList.remove('show');
+                activePanel = null;
+            } else {
+                if (activePanel) {
+                    activePanel.classList.remove('show');
+                }
+                panel.classList.add('show');
+                activePanel = panel;
+                
+                const rect = panel.getBoundingClientRect();
+                if (rect.right > window.innerWidth) {
+                    panel.style.right = '10px';
+                }
+            }
+        }
+
+        wifiBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            togglePanel(wifiPanel, wifiBtn);
         });
         
-        async function handleLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            const loading = document.getElementById('loading');
-            loading.style.display = 'flex';
-            
-            const accountIcon = document.getElementById('account-icon');
-            const accountStatus = document.getElementById('account-status');
-            const ipIcon = document.getElementById('ip-icon');
-            const ipStatus = document.getElementById('ip-status');
-            const locationIcon = document.getElementById('location-icon');
-            const locationStatus = document.getElementById('location-status');
-            const deviceIcon = document.getElementById('device-icon');
-            const deviceStatus = document.getElementById('device-status');
-            const progressBar = document.getElementById('progress-bar');
-            
-            resetStatus(accountIcon, accountStatus, ipIcon, ipStatus, locationIcon, locationStatus, deviceIcon, deviceStatus);
-            progressBar.className = 'progress-bar';
-            progressBar.style.width = '0%';
-            
-            await simulateLogin(username, password, progressBar, accountIcon, accountStatus, ipIcon, ipStatus, locationIcon, locationStatus, deviceIcon, deviceStatus);
-        }
-        
-        function resetStatus(accountIcon, accountStatus, ipIcon, ipStatus, locationIcon, locationStatus, deviceIcon, deviceStatus) {
-            accountIcon.innerHTML = '<path fill="#666" d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>';
-            ipIcon.innerHTML = '<path fill="#666" d="M12 2A10 10 0 0 1 22 12 10 10 0 0 1 12 22 10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m0 6.5a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m-5.5 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m11 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5z"/>';
-            locationIcon.innerHTML = '<path fill="#666" d="M12 11.5A2.5 2.5 0 0 1 9.5 9 2.5 2.5 0 0 1 12 6.5 2.5 2.5 0 0 1 14.5 9 2.5 2.5 0 0 1 12 11.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/>';
-            deviceIcon.innerHTML = '<path fill="#666" d="M4 1h16a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 2v18h16V3H4zm6 14h4v2h-4v-2z"/>';
-            accountStatus.textContent = "等待验证...";
-            ipStatus.textContent = "等待验证...";
-            locationStatus.textContent = "等待验证...";
-            deviceStatus.textContent = "等待验证...";
-            accountStatus.className = "check-status";
-            ipStatus.className = "check-status";
-            locationStatus.className = "check-status";
-            deviceStatus.className = "check-status";
-        }
-        
-        async function simulateLogin(username, password, progressBar, accountIcon, accountStatus, ipIcon, ipStatus, locationIcon, locationStatus, deviceIcon, deviceStatus) {
-            try {
-                // 账号密码验证
-                accountIcon.classList.add('loading');
-                accountStatus.textContent = "正在验证...";
-                accountStatus.classList.add('processing');
-                await updateProgress(progressBar, 30, 1000);
-                
-                if (username === DEFAULT_USERNAME && password === DEFAULT_PASSWORD) {
-                    accountIcon.classList.remove('loading');
-                    accountIcon.innerHTML = '<path fill="#28A745" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>';
-                    accountStatus.textContent = "验证成功";
-                    accountStatus.classList.remove('processing');
-                    accountStatus.classList.add('success');
-                    progressBar.classList.add('success');
-                } else {
-                    accountIcon.classList.remove('loading');
-                    accountIcon.innerHTML = '<path fill="#FF3B30" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>';
-                    accountStatus.textContent = "验证失败";
-                    accountStatus.classList.remove('processing');
-                    accountStatus.classList.add('error');
-                    
-                    setTimeout(() => {
-                        document.getElementById('loading').style.display = 'none';
-                        alert('账号或密码错误，请使用默认账号: admin');
-                    }, 500);
-                    return;
-                }
-                
-                // IP地址验证
-                ipIcon.classList.add('loading');
-                ipStatus.textContent = "正在验证...";
-                ipStatus.classList.add('processing');
-                await updateProgress(progressBar, 60, 1500);
-                
-                try {
-                    const ipResponse = await fetch('https://api.ipify.org?format=json');
-                    const ipData = await ipResponse.json();
-                    const userIP = ipData.ip;
-                    
-                    ipIcon.classList.remove('loading');
-                    ipIcon.innerHTML = '<path fill="#0078D7" d="M12 2A10 10 0 0 1 22 12 10 10 0 0 1 12 22 10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8m0 6.5a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m-5.5 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5m11 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5z"/>';
-                    ipStatus.textContent = userIP;
-                    ipStatus.classList.remove('processing');
-                    ipStatus.classList.add('success');
-                    
-                    // 地区验证
-                    locationIcon.classList.add('loading');
-                    locationStatus.textContent = "正在验证...";
-                    locationStatus.classList.add('processing');
-                    await updateProgress(progressBar, 75, 1000);
-                    
-                    try {
-                        const locationResponse = await fetch(`https://ipapi.co/${userIP}/json/`);
-                        const locationData = await locationResponse.json();
-                        const userLocation = locationData.country_name ? 
-                            `${locationData.country_name}${locationData.region ? ', ' + locationData.region : ''}${locationData.city ? ', ' + locationData.city : ''}` : 
-                            '未知地区';
-                        
-                        locationIcon.classList.remove('loading');
-                        locationIcon.innerHTML = '<path fill="#FF9500" d="M12 11.5A2.5 2.5 0 0 1 9.5 9 2.5 2.5 0 0 1 12 6.5 2.5 2.5 0 0 1 14.5 9 2.5 2.5 0 0 1 12 11.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/>';
-                        locationStatus.textContent = userLocation;
-                        locationStatus.classList.remove('processing');
-                        locationStatus.classList.add('warning');
-                    } catch (error) {
-                        console.error('获取地区信息失败:', error);
-                        locationIcon.classList.remove('loading');
-                        locationIcon.innerHTML = '<path fill="#FF3B30" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>';
-                        locationStatus.textContent = "获取失败";
-                        locationStatus.classList.remove('processing');
-                        locationStatus.classList.add('error');
-                    }
-                } catch (error) {
-                    console.error('获取IP地址失败:', error);
-                    ipIcon.classList.remove('loading');
-                    ipIcon.innerHTML = '<path fill="#FF3B30" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>';
-                    ipStatus.textContent = "获取失败";
-                    ipStatus.classList.remove('processing');
-                    ipStatus.classList.add('error');
-                }
-                
-                // 设备验证
-                deviceIcon.classList.add('loading');
-                deviceStatus.textContent = "正在验证...";
-                deviceStatus.classList.add('processing');
-                await updateProgress(progressBar, 90, 1000);
-                
-                try {
-                    const deviceInfo = getDeviceInfo();
-                    
-                    deviceIcon.classList.remove('loading');
-                    deviceIcon.innerHTML = '<path fill="#FF3B30" d="M4 1h16a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 2v18h16V3H4zm6 14h4v2h-4v-2z"/>';
-                    deviceStatus.textContent = deviceInfo;
-                    deviceStatus.classList.remove('processing');
-                    deviceStatus.classList.add('error');
-                } catch (error) {
-                    console.error('获取设备信息失败:', error);
-                    deviceIcon.classList.remove('loading');
-                    deviceIcon.innerHTML = '<path fill="#FF3B30" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>';
-                    deviceStatus.textContent = "获取失败";
-                    deviceStatus.classList.remove('processing');
-                    deviceStatus.classList.add('error');
-                }
-                
-                await updateProgress(progressBar, 100, 500);
-                
-                showResultModal();
-            } catch (error) {
-                console.error(error);
-                document.getElementById('loading').style.display = 'none';
-                alert('登录过程中出错');
+        powerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            togglePanel(powerPanel, powerBtn);
+        });
+
+        usbBtn.addEventListener('mouseenter', () => {
+            usbPanel.classList.add('show');
+        });
+
+        usbBtn.addEventListener('mouseleave', () => {
+            usbPanel.classList.remove('show');
+        });
+
+        qrTrigger.addEventListener('mouseenter', () => {
+            qrCode.style.display = 'block';
+            const qrTriggerRect = qrTrigger.getBoundingClientRect();
+            const qrCodeWidth = qrCode.offsetWidth;
+            qrCode.style.bottom = `${window.innerHeight - qrTriggerRect.top + 10}px`;
+            qrCode.style.right = `${window.innerWidth - qrTriggerRect.right + (qrTriggerRect.width - qrCodeWidth) / 2}px`;
+        });
+
+        qrTrigger.addEventListener('click', () => {
+            qrCode.style.display = qrCode.style.display === 'none' ? 'block' : 'none';
+            if (qrCode.style.display === 'block') {
+                const qrTriggerRect = qrTrigger.getBoundingClientRect();
+                const qrCodeWidth = qrCode.offsetWidth;
+                qrCode.style.bottom = `${window.innerHeight - qrTriggerRect.top + 10}px`;
+                qrCode.style.right = `${window.innerWidth - qrTriggerRect.right + (qrTriggerRect.width - qrCodeWidth) / 2}px`;
             }
-        }
-        
-        function getDeviceInfo() {
-            const userAgent = navigator.userAgent;
-            let deviceType = "未知设备";
-            
-            if (/Mobile|Android|iPhone|iPad|iPod|Windows Phone/i.test(userAgent)) {
-                deviceType = "移动设备";
-            } else if (/Windows NT/i.test(userAgent)) {
-                deviceType = "Windows 电脑";
-            } else if (/Macintosh|Mac OS X/i.test(userAgent)) {
-                deviceType = "Mac 电脑";
-            } else if (/Linux/i.test(userAgent)) {
-                deviceType = "Linux 电脑";
+        });
+
+        qrCode.addEventListener('mouseleave', () => {
+            qrCode.style.display = 'none';
+        });
+
+        avatar.addEventListener('mouseenter', () => {
+            avatar.style.animation = 'breatheWithSmoke 4s infinite alternate, spin 1s linear';
+        });
+
+        avatar.addEventListener('click', () => {
+            avatar.style.animation = 'spin 1s linear';
+            setTimeout(() => {
+                avatar.style.animation = 'breatheWithSmoke 4s infinite alternate';
+            }, 1000);
+        });
+
+        avatar.addEventListener('mouseleave', () => {
+            avatar.style.animation = 'breatheWithSmoke 4s infinite alternate';
+        });
+
+        document.addEventListener('click', () => {
+            if (activePanel) {
+                activePanel.classList.remove('show');
+                activePanel = null;
             }
-            
-            const screenWidth = window.screen.width;
-            const screenHeight = window.screen.height;
-            
-            return `${deviceType} (${screenWidth}×${screenHeight})`;
-        }
-        
-        function updateProgress(progressBar, targetPercent, duration) {
-            return new Promise(resolve => {
-                const startPercent = parseInt(progressBar.style.width) || 0;
-                const startTime = Date.now();
-                
-                const animate = () => {
-                    const elapsed = Date.now() - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-                    const currentPercent = startPercent + (targetPercent - startPercent) * progress;
-                    progressBar.style.width = currentPercent + '%';
-                    if (progress < 1) requestAnimationFrame(animate);
-                    else resolve();
-                };
-                
-                animate();
+            qrCode.style.display = 'none';
+            usbPanel.classList.remove('show');
+        });
+
+        [wifiPanel, powerPanel, qrCode, usbPanel].forEach(element => {
+            element.addEventListener('click', (e) => {
+                e.stopPropagation();
             });
-        }
+        });
+
+        document.getElementById('exitBtn').addEventListener('click', () => {
+            window.location.href = 'about:blank';
+        });
         
-        async function showResultModal() {
-            const modal = document.getElementById('result-modal');
+        document.getElementById('homeBtn').addEventListener('click', () => {
+            window.location.href = 'https://7v7.top';
+        });
+
+        document.getElementById('resetPasswordBtn').addEventListener('click', () => {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = "管理员不允许重置密码";
+            errorMessage.classList.add('show');
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 3000);
+        });
+
+        document.getElementById('otherUserBtn').addEventListener('click', () => {
+            const avatar = document.querySelector('.avatar img');
+            const userName = document.querySelector('.user-name');
             
-            // 获取IP地址
-            try {
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                document.getElementById('modal-ip-value').textContent = ipData.ip;
-                
-                // 获取地区信息
-                const locationResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
-                const locationData = await locationResponse.json();
-                const userLocation = locationData.country_name ? 
-                    `${locationData.country_name}${locationData.region ? ', ' + locationData.region : ''}${locationData.city ? ', ' + locationData.city : ''}` : 
-                    '未知地区';
-                document.getElementById('modal-location-value').textContent = userLocation;
-            } catch (error) {
-                console.error('获取IP或地区信息失败:', error);
-                document.getElementById('modal-ip-value').textContent = '获取失败';
-                document.getElementById('modal-location-value').textContent = '获取失败';
+            if (userName.textContent === 'yaliuz') {
+                avatar.src = 'https://via.placeholder.com/150/cccccc/969696?text=Guest';
+                userName.textContent = '42626139@qq.com';
+            } else {
+                avatar.src = 'https://via.placeholder.com/150/cccccc/969696?text=头像';
+                userName.textContent = 'yaliuz';
             }
             
-            // 获取设备信息
-            document.getElementById('modal-device-value').textContent = getDeviceInfo();
+            document.getElementById('password').value = '';
+        });
+
+        document.querySelectorAll('button, .icon, .panel-item').forEach(element => {
+            element.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+                this.style.opacity = '0.9';
+            });
             
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
-            
-            document.getElementById('modal-close').addEventListener('click', function() {
-                modal.classList.remove('show');
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                    document.getElementById('loading').style.display = 'none';
-                }, 300);
-            }, { once: true });
-            
-            document.getElementById('modal-confirm').addEventListener('click', function() {
-                modal.classList.remove('show');
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                    document.getElementById('loading').style.display = 'none';
-                }, 300);
-            }, { once: true });
-        }
+            element.addEventListener('touchend', function() {
+                this.style.transform = '';
+                this.style.opacity = '';
+            });
+        });
     </script>
 </body>
 </html>
