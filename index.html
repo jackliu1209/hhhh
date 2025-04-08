@@ -327,11 +327,44 @@
             }
         }
 
-        /* 新页面样式 */
-        .new-page {
-            padding: 100px 20px;
-            text-align: center;
+        /* 视频区域样式 */
+        .video-section {
+            height: 100vh;
+            width: 100%;
+            padding: 0;
             background-color: #f6f9fa;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: #666;
+            font-size: 18px;
         }
 
         /* 页脚样式 */
@@ -504,10 +537,15 @@
         </div>
         <div class="scroll-down" data-lang-key="scroll-down">下滑查看更多</div>
     </div>
-    <!-- 新页面 -->
-    <div class="new-page">
-        <h2 data-lang-key="new-page-title">欢迎来到新页v 面</h2>
-        <p data-lang-key="new-page-desc">By yaliuz</p>
+    <!-- 视频部分 -->
+    <div class="video-section">
+        <div class="video-container">
+            <div class="video-loading">视频加载中...</div>
+            <video autoplay loop muted playsinline>
+                <source src="https://www.kingsoft.com/media/movie-10.438803e7.mp4" type="video/mp4">
+                您的浏览器不支持视频播放
+            </video>
+        </div>
     </div>
     <!-- 页脚 -->
     <footer>
@@ -555,7 +593,21 @@
             const openAboutModal = document.getElementById('open-about-modal');
             const closeAboutModal = document.getElementById('close-about-modal');
             const aboutModal = document.getElementById('about-modal');
+            const video = document.querySelector('video');
+            const videoLoading = document.querySelector('.video-loading');
             let currentSlide = 0;
+
+            // 视频加载处理
+            if (video) {
+                video.addEventListener('canplay', function () {
+                    videoLoading.style.display = 'none';
+                    video.style.display = 'block';
+                });
+
+                video.addEventListener('error', function () {
+                    videoLoading.textContent = '视频加载失败，请刷新重试';
+                });
+            }
 
             const languages = {
                 "zh-CN": {
@@ -721,4 +773,5 @@
     </script>
 </body>
 
-</html>    
+</html>
+    
