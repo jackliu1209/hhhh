@@ -10,7 +10,6 @@
         html,
         body {
             overflow-x: hidden;
-            /* 防止水平滚动 */
             width: 100%;
             max-width: 100%;
             margin: 0;
@@ -32,8 +31,8 @@
         }
 
         header.scrolled {
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: transparent;
+            box-shadow: none;
         }
 
         .header-container {
@@ -155,17 +154,11 @@
             border-radius: 8px;
         }
 
-        /* 电脑端样式调整，让图片缩小一半 */
         @media (min-width: 769px) {
            .about-modal-content {
                 max-width: 45%;
                 max-height: 45%;
             }
-        }
-
-        /* 语言切换下拉菜单，手机端不显示 */
-        .language-dropdown {
-            display: none;
         }
 
         /* 手机端菜单按钮 */
@@ -183,7 +176,6 @@
             transition: all 0.3s ease;
         }
 
-        /* 手机端菜单栏样式 */
         @media (max-width: 768px) {
             nav ul {
                 display: none;
@@ -224,7 +216,7 @@
             }
         }
 
-        /* halo-区域样式 */
+        /* 轮播区域样式 */
         .slider {
             position: relative;
             height: 100vh;
@@ -281,7 +273,7 @@
             transform: translateY(0);
         }
 
-        /* halo-导航按钮 */
+        /* 轮播导航按钮 */
         .slider-nav {
             position: absolute;
             bottom: 20px;
@@ -327,30 +319,27 @@
             }
         }
 
-        /* 视频区域样式 */
+        /* 视频部分样式 - 修改为全屏 */
         .video-section {
-            height: 100vh;
+            position: relative;
             width: 100%;
-            padding: 0;
-            background-color: #f6f9fa;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
         }
 
         .video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            position: relative;
-            overflow: hidden;
         }
 
         .video-container video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: block;
         }
 
         .video-loading {
@@ -362,9 +351,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: rgba(0, 0, 0, 0.1);
-            color: #666;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
             font-size: 18px;
+            z-index: 10;
         }
 
         /* 页脚样式 */
@@ -395,16 +385,14 @@
         .footer-icons img:hover {
             opacity: 1;
             filter: brightness(1.2);
-            transform: scale(1.1);
         }
 
         .qr-code {
             position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 105px !important;
-            height: 105px !important;
+            top: 0;
+            left: 0;
+            width: 50px !important;
+            height: 50px !important;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
@@ -412,17 +400,28 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             transform-origin: bottom center;
+            transform: rotateX(-90deg);
         }
 
         .icon-wrapper {
             position: relative;
             display: inline-block;
+            perspective: 1000px;
+        }
+
+        .icon-wrapper img:first-child {
+            transition: transform 0.3s ease;
+            transform-origin: bottom center;
+        }
+
+        .icon-wrapper:hover img:first-child {
+            transform: rotateX(90deg);
         }
 
         .icon-wrapper:hover .qr-code {
             opacity: 1;
             visibility: visible;
-            transform: translateX(-50%) scale(1);
+            transform: rotateX(0deg);
         }
 
         .footer-info {
@@ -470,6 +469,11 @@
             transition: opacity 0.3s ease;
             z-index: 1001;
         }
+
+        /* 导航栏滑动效果 */
+        header.scrolled nav ul li a {
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -507,7 +511,7 @@
             <img src="we.png" alt="关于我们的图片">
         </div>
     </div>
-    <!-- halo-区域 -->
+    <!-- 轮播区域 -->
     <div class="slider">
         <div class="slide active">
             <img src="https://firefox-settings-attachments.cdn.mozilla.net/main-workspace/newtab-wallpapers-v2/d8b71c77-9985-41d2-b98e-51bebc60e595.avif" alt="halo-1">
@@ -537,7 +541,7 @@
         </div>
         <div class="scroll-down" data-lang-key="scroll-down">下滑查看更多</div>
     </div>
-    <!-- 视频部分 -->
+    <!-- 视频部分 - 修改为全屏 -->
     <div class="video-section">
         <div class="video-container">
             <div class="video-loading">视频加载中...</div>
@@ -598,14 +602,23 @@
             let currentSlide = 0;
 
             // 视频加载处理
-            if (video) {
-                video.addEventListener('canplay', function () {
+            if(video) {
+                video.addEventListener('canplay', function() {
                     videoLoading.style.display = 'none';
-                    video.style.display = 'block';
                 });
-
-                video.addEventListener('error', function () {
+                
+                video.addEventListener('error', function() {
                     videoLoading.textContent = '视频加载失败，请刷新重试';
+                });
+                
+                // 确保视频可以自动播放
+                video.play().catch(e => {
+                    videoLoading.textContent = '点击播放视频';
+                    videoLoading.style.cursor = 'pointer';
+                    videoLoading.onclick = function() {
+                        video.play();
+                        videoLoading.style.display = 'none';
+                    };
                 });
             }
 
