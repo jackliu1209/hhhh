@@ -371,6 +371,7 @@
             animation: gradientAnimation 5s ease infinite;
             border-radius: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 150px;
@@ -393,6 +394,12 @@
             margin: 0 auto;
             padding: 0 20px;
             text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
         }
 
         /* 图标区域样式 */
@@ -557,6 +564,15 @@
                 transform: rotate(30deg) translateX(100vw) translateY(100vh);
             }
         }
+
+        /* 新增图像样式 */
+        .below-icons-image {
+            max-width: 60%;
+            max-height: 150px;
+            margin-top: 20px;
+            z-index: 2;
+            object-fit: contain;
+        }
     </style>
 </head>
 
@@ -656,9 +672,8 @@
                     <img class="qr-code" src="dyt.jpg" alt="头条二维码">
                 </div>
             </div>
-            <div class="footer-copyright">
-                <p id="typing-text"></p>
-            </div>
+            <!-- 添加图像 -->
+            <img class="below-icons-image" src="https://www.ysjf.com/assets/bannar@2x-GZsFMW3y.png" alt="指定图像">
         </div>
     </footer>
     <script>
