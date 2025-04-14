@@ -3,9 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>こんにちは</title>
     <link rel="icon" href="https://www.shanghai.gov.cn/assets2020/img/logo-big.png" type="image/png">
+    <!-- 引入 Ma Shan Zheng 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <style>
         /* 全局样式 */
         html,
@@ -601,10 +604,17 @@
             .footer-images-container {
                 gap: 10px;
             }
-            
+
             .footer-image {
                 max-height: 40px;
             }
+        }
+
+        /* brush-font-4 样式 */
+        .brush-font-4 {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 28px;
+            color: #fb0808;
         }
     </style>
 </head>
@@ -615,7 +625,7 @@
         <div class="header-container">
             <div class="logo">
                 <img src="https://www.shanghai.gov.cn/assets2020/img/logo-big.png" alt="">
-                <span>共产党万岁</span>
+                <span class="brush-font-4">—中国共产党万岁—</span>
             </div>
             <nav>
                 <div class="menu-toggle">
@@ -713,7 +723,7 @@
             <!-- 添加图像 -->
             <div class="footer-images-container">
                 <img class="footer-image" src="https://dcs.conac.cn/image/blue.png" alt="腾讯logo">
-                
+
                 <img class="footer-image" src="https://www.shanghai.gov.cn/assets2020/img/logo-big.png" alt="纠错标识">
                 <img class="footer-image" src="https://dcs.conac.cn/image/red.png" alt="红色标识">
             </div>
@@ -913,4 +923,4 @@
     </script>
 </body>
 
-</html>
+</html>    
