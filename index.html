@@ -3,7 +3,6 @@
 
 <head>
     <meta charset="UTF-8">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>こんにちは</title>
     <link rel="icon" href="https://www.shanghai.gov.cn/assets2020/img/logo-big.png" type="image/png">
@@ -610,11 +609,28 @@
             }
         }
 
-        /* brush-font-4 样式 */
+        /* brush-font-4 样式 - 修改部分 */
         .brush-font-4 {
             font-family: 'Ma Shan Zheng', cursive;
             font-size: 28px;
             color: #fb0808;
+            position: relative;
+        }
+        
+        /* 默认显示带破折号的版本（移动端） */
+        .brush-font-4::before,
+        .brush-font-4::after {
+            content: "—";
+            display: inline;
+        }
+        
+        /* 电脑端显示不带破折号的版本 */
+        @media (min-width: 769px) {
+            .brush-font-4::before,
+            .brush-font-4::after {
+                content: "";
+                display: none;
+            }
         }
     </style>
 </head>
@@ -625,7 +641,7 @@
         <div class="header-container">
             <div class="logo">
                 <img src="https://www.shanghai.gov.cn/assets2020/img/logo-big.png" alt="">
-                <span class="brush-font-4">—中国共产党万岁—</span>
+                <span class="brush-font-4">中国共产党万岁</span>
             </div>
             <nav>
                 <div class="menu-toggle">
@@ -923,4 +939,4 @@
     </script>
 </body>
 
-</html>    
+</html>
